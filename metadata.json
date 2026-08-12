@@ -1,0 +1,6 @@
+{
+  "name": "Bo District Council Portal",
+  "description": "Official civic digital services portal for Bo District Council, Sierra Leone. Citizens can report public issues, locate chiefdom wards, calculate local rates, track development projects, and query the AI Civic Assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

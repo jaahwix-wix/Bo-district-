@@ -1,0 +1,39 @@
+{
+  "name": "Bo District Council Portal",
+  "short_name": "Bo Council",
+  "description": "Official mobile and web digital civic services portal for Bo District Council, Sierra Leone.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#022c22",
+  "theme_color": "#022c22",
+  "orientation": "any",
+  "categories": ["government", "utilities", "finance"],
+  "icons": [
+    {
+      "src": "/src/assets/images/pwa_app_icon_1786548764274.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/src/assets/images/pwa_app_icon_1786548764274.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pay Taxes",
+      "short_name": "Pay Tax",
+      "description": "Pay local rates and council dues online",
+      "url": "/?tab=tax"
+    },
+    {
+      "name": "Report Issue",
+      "short_name": "Report",
+      "description": "Report a public service issue",
+      "url": "/?tab=report"
+    }
+  ]
+}

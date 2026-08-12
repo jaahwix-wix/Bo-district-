@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>Bo District Council | Mobile & Web Civic Portal</title>
+    
+    <!-- PWA & Mobile Web App Meta Configuration -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#022c22" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Bo Council" />
+    <link rel="apple-touch-icon" href="/src/assets/images/pwa_app_icon_1786548764274.jpg" />
+    
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/jpeg" href="/src/assets/images/pwa_app_icon_1786548764274.jpg" />
+  </head>
+  <body class="bg-slate-100 text-slate-900 antialiased selection:bg-amber-400 selection:text-slate-950">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then((reg) => {
+            console.log('PWA Service Worker registered:', reg.scope);
+          }).catch((err) => {
+            console.log('Service Worker registration failed:', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
+
+
