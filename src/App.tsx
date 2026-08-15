@@ -15,6 +15,7 @@ import { RevenueAndReceipts } from './components/RevenueAndReceipts';
 import { LicencesAndPermits } from './components/LicencesAndPermits';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
+import { LoginScreen } from './components/LoginScreen';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { auth } from './lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -28,6 +29,7 @@ export default function App() {
   const [userRole, setUserRole] = useState<'citizen' | 'officer' | 'admin'>('citizen');
   const [userChiefdom, setUserChiefdom] = useState<string>('Kakua');
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [authChecking, setAuthChecking] = useState<boolean>(true);
 
   // Core Data States
   const [reports, setReports] = useState<ServiceReport[]>([]);
@@ -68,6 +70,7 @@ export default function App() {
       } else {
         setUserRole('citizen');
       }
+      setAuthChecking(false);
     });
 
     return () => unsubscribe();
@@ -212,6 +215,30 @@ export default function App() {
     setEvents((prev) => prev.filter((e) => e.id !== eventId));
   };
 
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-emerald-950 flex flex-col items-center justify-center p-6 text-white text-center">
+        <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mb-4" />
+        <h3 className="font-extrabold text-base text-amber-300">Bo District Council Portal</h3>
+        <p className="text-xs text-emerald-200 mt-1">Verifying security credentials & session...</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <LoginScreen
+        onLoginSuccess={(user, role) => {
+          setCurrentUser(user);
+          setUserRole(role);
+          if (role === 'admin' || role === 'officer') {
+            setIsAdmin(true);
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans flex flex-col antialiased selection:bg-amber-400 selection:text-emerald-950">
       {/* Fixed Header */}
@@ -351,6 +378,9 @@ export default function App() {
           </>
         )}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Footer */}
       <Footer setActiveTab={setActiveTab} />
