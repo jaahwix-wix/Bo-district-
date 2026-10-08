@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ServiceReport, DevelopmentProject, Announcement, CouncilEvent } from '../types';
 import { CHIEFDOMS_DATA } from '../data/chiefdoms';
+import { getAuthHeaders } from '../lib/auth-client';
 import { 
   ShieldCheck, 
   FileText, 
@@ -79,6 +80,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [noticeText, setNoticeText] = useState('');
   const [noticeImportant, setNoticeImportant] = useState(false);
 
+  const [projectSuccessMsg, setProjectSuccessMsg] = useState('');
+  const [noticeSuccessMsg, setNoticeSuccessMsg] = useState('');
+
   const selectedReport = reports.find(r => r.id === selectedReportId);
 
   const handleUpdateStatusSubmit = async (e: React.FormEvent) => {
@@ -86,9 +90,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     if (!selectedReportId) return;
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/reports/${selectedReportId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           status: newStatus,
           officialNote
@@ -110,9 +115,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     if (!projTitle.trim()) return;
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           title: projTitle,
           sector: projSector,
@@ -129,7 +135,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         onAddProject(newProj);
         setProjTitle('');
         setProjImpact('');
-        alert('New infrastructure project added to public DevTracker!');
+        setProjectSuccessMsg('New infrastructure project added to public DevTracker!');
+        setTimeout(() => setProjectSuccessMsg(''), 4000);
       }
     } catch (err) {
       console.error('Failed to add project:', err);
@@ -141,9 +148,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     if (!noticeTitle.trim()) return;
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/announcements', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           title: noticeTitle,
           category: noticeCategory,
@@ -159,7 +167,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         setNoticeTitle('');
         setNoticeSummary('');
         setNoticeText('');
-        alert('Public Council Notice published successfully!');
+        setNoticeSuccessMsg('Public Council Notice published successfully!');
+        setTimeout(() => setNoticeSuccessMsg(''), 4000);
       }
     } catch (err) {
       console.error('Failed to publish notice:', err);
@@ -533,9 +542,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         onClick={async () => {
                           const newStatus = evt.status === 'Upcoming' ? 'Completed' : 'Upcoming';
                           try {
+                            const headers = await getAuthHeaders();
                             const res = await fetch(`/api/events/${evt.id}`, {
                               method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
+                              headers,
                               body: JSON.stringify({ status: newStatus })
                             });
                             if (res.ok) onEditEvent(await res.json());
@@ -551,13 +561,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
                       <button
                         onClick={async () => {
-                          if (confirm(`Delete event ${evt.id}?`)) {
-                            try {
-                              const res = await fetch(`/api/events/${evt.id}`, { method: 'DELETE' });
-                              if (res.ok) onDeleteEvent(evt.id);
-                            } catch (err) {
-                              console.error('Delete event error:', err);
-                            }
+                          try {
+                            const headers = await getAuthHeaders();
+                            const res = await fetch(`/api/events/${evt.id}`, { 
+                              method: 'DELETE',
+                              headers
+                            });
+                            if (res.ok) onDeleteEvent(evt.id);
+                          } catch (err) {
+                            console.error('Delete event error:', err);
                           }
                         }}
                         className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded font-bold text-[11px]"

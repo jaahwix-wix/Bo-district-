@@ -18,14 +18,15 @@ import { AuthModal } from './components/AuthModal';
 import { LoginScreen } from './components/LoginScreen';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { auth } from './lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { getSavedSession, getAuthHeaders } from './lib/auth-client';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // Auth States
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<'citizen' | 'officer' | 'admin'>('citizen');
   const [userChiefdom, setUserChiefdom] = useState<string>('Kakua');
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
@@ -46,11 +47,33 @@ export default function App() {
   // Cross-component interaction parameters
   const [selectedReportSearchId, setSelectedReportSearchId] = useState<string>('');
 
-  // Firebase Auth Observer & Sync with PostgreSQL
+  // Local Session Initialization & Firebase Auth Observer
   useEffect(() => {
+    // 1. Immediately check local saved council session
+    const saved = getSavedSession();
+    if (saved && saved.uid) {
+      const councilUser = {
+        uid: saved.uid,
+        email: saved.email,
+        displayName: saved.displayName || saved.email?.split('@')[0],
+        photoURL: null,
+        role: saved.role || 'citizen',
+        chiefdom: saved.chiefdom || 'Kakua',
+        getIdToken: async () => saved.token || ''
+      };
+      setCurrentUser(councilUser);
+      setUserRole(saved.role || 'citizen');
+      setUserChiefdom(saved.chiefdom || 'Kakua');
+      if (saved.role === 'admin' || saved.role === 'officer') {
+        setIsAdmin(true);
+      }
+      setAuthChecking(false);
+    }
+
+    // 2. Also listen for Firebase Auth
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
       if (user) {
+        setCurrentUser(user);
         try {
           const token = await user.getIdToken();
           const res = await fetch('/api/auth/me', {
@@ -68,13 +91,28 @@ export default function App() {
           console.error('Failed to sync user with PostgreSQL:', err);
         }
       } else {
-        setUserRole('citizen');
+        // Only clear if no saved council session exists
+        if (!getSavedSession()) {
+          setCurrentUser(null);
+          setUserRole('citizen');
+        }
       }
       setAuthChecking(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  const handleSignOut = async () => {
+    localStorage.removeItem('bodc_session');
+    try {
+      await signOut(auth);
+    } catch {}
+    setCurrentUser(null);
+    setIsAdmin(false);
+    setUserRole('citizen');
+    setActiveTab('home');
+  };
 
   // Fetch Initial Data
   useEffect(() => {
@@ -250,6 +288,7 @@ export default function App() {
         currentUser={currentUser}
         userRole={userRole}
         onOpenAuth={() => setAuthModalOpen(true)}
+        onSignOut={handleSignOut}
       />
 
       {/* Auth Modal */}
@@ -265,6 +304,7 @@ export default function App() {
             setIsAdmin(true);
           }
         }}
+        onSignOut={handleSignOut}
       />
 
       {/* Main Container */}

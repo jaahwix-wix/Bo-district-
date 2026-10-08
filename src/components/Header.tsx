@@ -1,6 +1,5 @@
 import React from 'react';
 import { TabType } from '../types';
-import { User } from 'firebase/auth';
 import { 
   Building2, 
   FileText, 
@@ -19,7 +18,8 @@ import {
   Award,
   Calendar,
   User as UserIcon,
-  Lock
+  Lock,
+  LogOut
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -27,9 +27,10 @@ interface HeaderProps {
   setActiveTab: (tab: TabType) => void;
   isAdmin: boolean;
   setIsAdmin: (admin: boolean) => void;
-  currentUser: User | null;
+  currentUser: any;
   userRole: 'citizen' | 'officer' | 'admin';
   onOpenAuth: () => void;
+  onSignOut?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,7 +40,8 @@ export const Header: React.FC<HeaderProps> = ({
   setIsAdmin,
   currentUser,
   userRole,
-  onOpenAuth
+  onOpenAuth,
+  onSignOut
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -120,6 +122,18 @@ export const Header: React.FC<HeaderProps> = ({
               <ShieldCheck className="w-3.5 h-3.5" />
               {isAdmin ? 'Officer Portal Mode (Active)' : 'Switch to Officer Mode'}
             </button>
+
+            {currentUser && onSignOut && (
+              <button
+                onClick={onSignOut}
+                title="Sign out from Council Portal"
+                className="px-2 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1 bg-rose-950/70 hover:bg-rose-900 text-rose-200 border border-rose-800/60 transition-colors"
+                id="header-logout-btn"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Logout</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

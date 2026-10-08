@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Announcement, CouncilEvent } from '../types';
 import { CHIEFDOMS_DATA } from '../data/chiefdoms';
+import { getAuthHeaders } from '../lib/auth-client';
 import { 
   Bell, 
   FileText, 
@@ -141,9 +142,10 @@ export const NoticesAndBylaws: React.FC<NoticesAndBylawsProps> = ({
     setErrorMsg('');
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/events', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           title: formTitle,
           category: formCategory,
@@ -162,7 +164,7 @@ export const NoticesAndBylaws: React.FC<NoticesAndBylawsProps> = ({
         onAddEvent(created);
         setIsAddModalOpen(false);
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         setErrorMsg(err.error || 'Failed to create event');
       }
     } catch (err) {
@@ -187,9 +189,10 @@ export const NoticesAndBylaws: React.FC<NoticesAndBylawsProps> = ({
     setErrorMsg('');
 
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/events/${editingEvent.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           title: formTitle,
           category: formCategory,
@@ -208,7 +211,7 @@ export const NoticesAndBylaws: React.FC<NoticesAndBylawsProps> = ({
         onEditEvent(updated);
         setEditingEvent(null);
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         setErrorMsg(err.error || 'Failed to update event');
       }
     } catch (err) {
@@ -225,8 +228,10 @@ export const NoticesAndBylaws: React.FC<NoticesAndBylawsProps> = ({
 
     setSubmitting(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/events/${deletingEventId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers
       });
 
       if (res.ok) {
