@@ -1308,16 +1308,31 @@ Your role is to assist citizens, business owners, farmers, and visitors with cle
       parts: [{ text: prompt }]
     });
 
-    const response = await aiClient.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: formattedContents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      }
-    });
+    let responseText = "";
+    try {
+      const response = await aiClient.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents: formattedContents,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        }
+      });
+      responseText = response.text || "";
+    } catch (primaryErr: any) {
+      console.warn("Primary model error, falling back to gemini-3.1-flash-lite:", primaryErr?.message);
+      const fallbackResponse = await aiClient.models.generateContent({
+        model: "gemini-3.1-flash-lite",
+        contents: formattedContents,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        }
+      });
+      responseText = fallbackResponse.text || "";
+    }
 
-    res.json({ text: response.text || "Thank you for reaching out to Bo District Council. How else can I assist you?" });
+    res.json({ text: responseText || "Thank you for reaching out to Bo District Council. How else can I assist you?" });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     res.status(500).json({
