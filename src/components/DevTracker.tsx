@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DevelopmentProject, SectorType } from '../types';
 import { D3DistrictMap } from './D3DistrictMap';
+import { DevWardDataVisualization, getProjectWard } from './DevWardDataVisualization';
 import { 
   Briefcase, 
   Search, 
@@ -19,7 +20,8 @@ import {
   GraduationCap,
   Sprout,
   Zap,
-  Filter
+  Filter,
+  X
 } from 'lucide-react';
 
 interface DevTrackerProps {
@@ -29,6 +31,7 @@ interface DevTrackerProps {
 
 export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
   const [selectedSector, setSelectedSector] = useState<string>('all');
+  const [selectedWard, setSelectedWard] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedMapProject, setSelectedMapProject] = useState<DevelopmentProject | null>(null);
   const [activeFeedbackProjectId, setActiveFeedbackProjectId] = useState<string | null>(null);
@@ -46,11 +49,13 @@ export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
 
   const filteredProjects = projects.filter((p) => {
     const matchesSector = selectedSector === 'all' || p.sector === selectedSector;
+    const matchesWard = !selectedWard || getProjectWard(p) === selectedWard;
     const matchesSearch = 
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.chiefdom.toLowerCase().includes(search.toLowerCase()) ||
+      getProjectWard(p).toLowerCase().includes(search.toLowerCase()) ||
       p.contractor.toLowerCase().includes(search.toLowerCase());
-    return matchesSector && matchesSearch;
+    return matchesSector && matchesWard && matchesSearch;
   });
 
   const handleFeedbackSubmit = (e: React.FormEvent, projId: string) => {
@@ -92,6 +97,13 @@ export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
         </div>
       </div>
 
+      {/* Recharts Ward Data Visualizations Section */}
+      <DevWardDataVisualization 
+        projects={projects}
+        selectedWard={selectedWard}
+        onSelectWard={(ward) => setSelectedWard(ward)}
+      />
+
       {/* D3 Map Visualization */}
       <D3DistrictMap 
         projects={projects} 
@@ -104,9 +116,9 @@ export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
 
       {/* Filters Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        {/* Sector Tabs */}
+        {/* Sector Tabs & Ward Filter Pill */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-          {['all', 'Infrastructure', 'Water & Sanitation', 'Health', 'Education'].map((sector) => {
+          {['all', 'Infrastructure', 'Water & Sanitation', 'Health', 'Education', 'Agriculture', 'Energy'].map((sector) => {
             const isSelected = selectedSector === sector;
             return (
               <button
@@ -123,6 +135,19 @@ export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
               </button>
             );
           })}
+
+          {selectedWard && (
+            <div className="flex items-center gap-1 bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap border border-emerald-300">
+              <span>{selectedWard}</span>
+              <button 
+                onClick={() => setSelectedWard(null)} 
+                className="hover:text-red-700 ml-1 p-0.5 rounded-full"
+                title="Clear ward filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Search */}
@@ -130,7 +155,7 @@ export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Search project or chiefdom..."
+            placeholder="Search project, ward, or chiefdom..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
@@ -154,7 +179,12 @@ export const DevTracker: React.FC<DevTrackerProps> = ({ projects }) => {
                 </span>
                 <div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase">{project.sector}</span>
-                  <div className="text-xs font-bold text-emerald-900">{project.chiefdom} Chiefdom</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-emerald-900">{project.chiefdom} Chiefdom</span>
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      {getProjectWard(project)}
+                    </span>
+                  </div>
                 </div>
               </div>
 

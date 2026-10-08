@@ -116,6 +116,7 @@ export interface DevelopmentProject {
   title: string;
   sector: SectorType;
   chiefdom: string;
+  ward?: string;
   budgetNLe: number;
   fundingSource: string;
   progress: number;

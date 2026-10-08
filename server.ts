@@ -288,6 +288,176 @@ async function seedDatabaseIfEmpty() {
 
       console.log("Cloud SQL Database seeding completed successfully!");
     }
+
+    // Ensure comprehensive development projects across wards exist
+    const currentProjs = await db.select().from(developmentProjects);
+    if (currentProjs.length < 5) {
+      console.log("Adding additional development projects across Bo District wards...");
+      const additionalProjects = [
+        {
+          id: "PROJ-2026-03",
+          title: "Fenton Road Municipal Market Drainage & Solar Streetlighting",
+          sector: "Infrastructure",
+          chiefdom: "Kakua",
+          budgetNLe: 1850000,
+          fundingSource: "District Development Fund & EU Grant",
+          progress: 90,
+          status: "Near Completion",
+          startDate: "2026-01-10",
+          targetCompletion: "2026-09-30",
+          contractor: "Fenton Modern Engineering",
+          impactSummary: "Upgrading 2.4km stormwater drains and installing 60 solar luminaires along Fenton Road and central business corridor."
+        },
+        {
+          id: "PROJ-2026-04",
+          title: "Korwama Community Health Center Maternity Wing & Solar Cold Chain",
+          sector: "Health",
+          chiefdom: "Kakua",
+          budgetNLe: 950000,
+          fundingSource: "UNICEF & Ministry of Local Government",
+          progress: 100,
+          status: "Completed",
+          startDate: "2025-11-01",
+          targetCompletion: "2026-06-30",
+          contractor: "Apex Medical Builders SL",
+          impactSummary: "Completed 20-bed maternal and child health ward with 24/7 solar battery bank for cold vaccine storage."
+        },
+        {
+          id: "PROJ-2026-05",
+          title: "Njala Komboya Agricultural Feeder Road Graveling & Culvert Works",
+          sector: "Infrastructure",
+          chiefdom: "Kakua",
+          budgetNLe: 1100000,
+          fundingSource: "Ministry of Agriculture Feeder Roads Fund",
+          progress: 45,
+          status: "In Progress",
+          startDate: "2026-03-20",
+          targetCompletion: "2026-12-15",
+          contractor: "Southern Roads Consortium",
+          impactSummary: "Rehabilitating 12km connecting farm settlements to Bo Regional Market."
+        },
+        {
+          id: "PROJ-2026-06",
+          title: "Mogbdemo Solar Borehole & Reticulation Pipe Network",
+          sector: "Water & Sanitation",
+          chiefdom: "Tikonko",
+          budgetNLe: 720000,
+          fundingSource: "District Council Water Sanitation Fund",
+          progress: 100,
+          status: "Completed",
+          startDate: "2025-12-15",
+          targetCompletion: "2026-05-20",
+          contractor: "Southern Hydro-Tech Ltd",
+          impactSummary: "Providing clean pressurized tap water to 3,400 residents across Mogbdemo and Sebehun communities."
+        },
+        {
+          id: "PROJ-2026-07",
+          title: "Yamandu Primary School 6-Classroom Block & Sanitation Block",
+          sector: "Education",
+          chiefdom: "Boama",
+          budgetNLe: 680000,
+          fundingSource: "SABABU Education Project & Council Co-financing",
+          progress: 55,
+          status: "In Progress",
+          startDate: "2026-04-01",
+          targetCompletion: "2026-10-31",
+          contractor: "Baoma Educational Infrastructure Ltd",
+          impactSummary: "Furnished classroom block with modern VIP latrines and rainwater harvesting system."
+        },
+        {
+          id: "PROJ-2026-08",
+          title: "Sumbuya Riverfront Fish Landing Jetty & Solar Cold Storage",
+          sector: "Agriculture",
+          chiefdom: "Lugbu",
+          budgetNLe: 1450000,
+          fundingSource: "Fisheries Development Fund & Council Grant",
+          progress: 70,
+          status: "In Progress",
+          startDate: "2026-02-01",
+          targetCompletion: "2026-11-15",
+          contractor: "Sewa Marine Works",
+          impactSummary: "Reinforced concrete landing quay and 15-ton solar cold store for artisanal fishermen along Sewa River."
+        },
+        {
+          id: "PROJ-2026-09",
+          title: "Mamboma Solar Mini-Grid & Community Distribution Grid",
+          sector: "Energy",
+          chiefdom: "Lugbu",
+          budgetNLe: 820000,
+          fundingSource: "Rural Renewable Energy Program",
+          progress: 100,
+          status: "Completed",
+          startDate: "2025-10-15",
+          targetCompletion: "2026-04-30",
+          contractor: "PowerGrid West Africa",
+          impactSummary: "50kWp solar mini-grid powering 180 commercial shops, local health post, and streetlights."
+        },
+        {
+          id: "PROJ-2026-10",
+          title: "Koribondo Commercial Highway Truck Transit Park & Market Stalls",
+          sector: "Infrastructure",
+          chiefdom: "Jaiama Bongor",
+          budgetNLe: 1600000,
+          fundingSource: "District Municipal Development Bond",
+          progress: 30,
+          status: "Planning",
+          startDate: "2026-06-01",
+          targetCompletion: "2027-03-31",
+          contractor: "Transit Infra Sierra Leone",
+          impactSummary: "Paved parking terminal for 40 heavy vehicles, 60 lock-up vendor stores, and public washrooms."
+        },
+        {
+          id: "PROJ-2026-11",
+          title: "Bumpe Town Cassava Processing Agro-Hub & Solar Dryers",
+          sector: "Agriculture",
+          chiefdom: "Bumpe Gao",
+          budgetNLe: 920000,
+          fundingSource: "World Bank Agricultural Value Chain Project",
+          progress: 85,
+          status: "Near Completion",
+          startDate: "2026-01-20",
+          targetCompletion: "2026-09-30",
+          contractor: "AgroTech Sierra Leone",
+          impactSummary: "Mechanized gari grating, hydraulic pressing, and solar drying shed boosting farmer cooperative revenue by 40%."
+        },
+        {
+          id: "PROJ-2026-12",
+          title: "Mongere Comprehensive Health Post Rehabilitation",
+          sector: "Health",
+          chiefdom: "Valunia",
+          budgetNLe: 880000,
+          fundingSource: "District Health Action Plan",
+          progress: 40,
+          status: "In Progress",
+          startDate: "2026-05-10",
+          targetCompletion: "2026-12-20",
+          contractor: "Valunia Local Builders",
+          impactSummary: "Refurbishment of outpatient clinic, dispensary, staff quarters, and dedicated solar powered borehole."
+        },
+        {
+          id: "PROJ-2026-13",
+          title: "Gboyama Inland Valley Swamp Irrigation Scheme",
+          sector: "Agriculture",
+          chiefdom: "Wonde",
+          budgetNLe: 760000,
+          fundingSource: "National Food Security Initiative",
+          progress: 15,
+          status: "Planning",
+          startDate: "2026-07-01",
+          targetCompletion: "2027-02-28",
+          contractor: "Wonde Agri-Irrigation Ltd",
+          impactSummary: "Concrete diversion weir and 4.2km contour canals enabling two-cycle annual rice cropping for 240 smallholders."
+        }
+      ];
+
+      for (const p of additionalProjects) {
+        try {
+          await db.insert(developmentProjects).values(p);
+        } catch (e) {
+          // ignore duplicate id if already exists
+        }
+      }
+    }
   } catch (err) {
     console.error("Error during initial database seed check:", err);
   }
